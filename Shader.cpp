@@ -5,7 +5,7 @@
 #include <string>
 #include <sstream>
 
-#include "renderer.hpp"
+#include "GLErrorUtils.hpp"
 
 
 Shader::Shader(const std::string& filename) 
@@ -27,6 +27,11 @@ void Shader::bind() const {
 
 void Shader::unbind() const {
   GLcall(glUseProgram(0));
+}
+
+void Shader::setUniform1i(const std::string& name, int v) {
+  
+  GLcall(glUniform1i(getUniformLocation(name), v));
 }
 
 void Shader::setUniform4f(const std::string& name, float v0, float v1, float v2, float v3) {

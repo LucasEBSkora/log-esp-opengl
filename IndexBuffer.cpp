@@ -1,6 +1,6 @@
 #include "IndexBuffer.hpp"
 
-#include "renderer.hpp"
+#include "GLErrorUtils.hpp"
 
 IndexBuffer::IndexBuffer(const void* data, unsigned int count) : m_count{count} {
 

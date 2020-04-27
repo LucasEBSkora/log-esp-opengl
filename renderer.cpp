@@ -1,18 +1,18 @@
 #include "renderer.hpp"
 
-#include <iostream>
+#include "GL/glew.h"
+#include "GLErrorUtils.hpp"
 
-void GLClearError() {
-  while (glGetError() != GL_NO_ERROR) {
-
-  }
-}
-
-bool glLogCall(const char* function, const char* file, int line) {
+void Renderer::draw(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const {
   
-  while(GLenum error = glGetError()) {
-    std::cout << "Erro " << error << " na função " << function << ' ' << file << ':' << line << std::endl;
-    return false;
-  }
-  return true;
+  shader.bind();
+  va.bind();
+  ib.bind();
+
+  GLcall(glDrawElements(GL_TRIANGLES, ib.getCount(), GL_UNSIGNED_INT, nullptr));
+
+}   
+
+void Renderer::clear() const {
+  GLcall(glClear(GL_COLOR_BUFFER_BIT));
 }

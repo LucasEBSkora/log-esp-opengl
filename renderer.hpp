@@ -2,14 +2,17 @@
 #define __RENDERER_HPP__
 
 #include <GL/glew.h>
-#include <assert.h>
 
-#define GLcall(x) GLClearError();\
-  x;\
-  assert(glLogCall(#x, __FILE__, __LINE__))
+#include "VertexArray.hpp"
+#include "IndexBuffer.hpp"
+#include "Shader.hpp"
 
-void GLClearError();
-bool glLogCall(const char* function, const char* file, int line);
+class Renderer {
+  public:
+    void draw(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const;
+    void clear() const;  
+
+};
 
 
 #endif

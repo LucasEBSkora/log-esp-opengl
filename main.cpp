@@ -1,13 +1,15 @@
 
+#include "GLErrorUtils.hpp"
 #include "renderer.hpp"
 #include "VertexBuffer.hpp"
 #include "IndexBuffer.hpp"
 #include "VertexArray.hpp"
 #include "VertexBufferLayout.hpp"
 #include "Shader.hpp"
+#include "Texture.hpp"
 
-#include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <GL/glew.h>
 
 
 #include <iostream>
@@ -46,6 +48,9 @@ int main(void)
 
     glfwSwapInterval(1);
 
+    GLcall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+    GLcall(glEnable(GL_BLEND));
+
     if (glewInit() != GLEW_OK) {
       std::cout << "GLEW is not ok" << std::endl;
     }
@@ -54,10 +59,10 @@ int main(void)
     {
 
       float positions[] = {
-        -0.5f, -0.5f,
-        0.5f, -0.5f,
-        0.5f,  0.5f,
-        -0.5f,  0.5f
+        -0.5f, -0.5f, 0.0f, 0.0f,
+        0.5f, -0.5f, 1.0f, 0.0f,
+        0.5f,  0.5f, 1.0f, 1.0f,
+        -0.5f,  0.5f, 0.0f, 1.0f
       };
 
       unsigned int indices[] = {
@@ -67,38 +72,39 @@ int main(void)
 
       //docs.gl
 
+      Texture texture("res/textures/Kuo-Toa+Druid-finished.png");
+      texture.bind();
+
+      
       VertexArray va;
-      VertexBuffer vb(positions, 4 * 2 * sizeof (float));
+      VertexBuffer vb(positions, 4 * (2 + 2)* sizeof (float));
       
       VertexBufferLayout layout;
+      layout.Push<float>(2);
       layout.Push<float>(2);
       va.addBuffer(vb, layout);
 
       IndexBuffer ib(indices, 6);
 
       Shader shader("res/shaders/basic.shader");
+      
       shader.bind();
 
-      shader.setUniform4f("u_Color", 0.5f, 0.5f, 0.7f, 0.5f);
+      shader.setUniform1i("u_Texture", 0);
 
-      va.unbind();
-      shader.unbind();
-      vb.unbind();
-      ib.unbind();
+      Renderer renderer;
 
       float festa = 0.0f;
       float inc = 0.01f;
       /* Loop until the user closes the window */
       while (!glfwWindowShouldClose(window)) {
           /* Render here */
-          GLcall(glClear(GL_COLOR_BUFFER_BIT));
 
-          shader.bind();
+          renderer.clear();
 
-          va.bind();
           shader.setUniform4f("u_Color", 1.0f - festa, festa, 1.0f - festa, 1.0f);
 
-          GLcall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+          renderer.draw(va, ib, shader);
 
           /* Swap front and back buffers */
           glfwSwapBuffers(window);

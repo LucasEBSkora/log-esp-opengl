@@ -12,10 +12,10 @@ class Shader {
       std::string fragmentSource;
     };
 
-
     std::string m_filePath;
     unsigned int m_Renderer_ID;
     std::unordered_map<std::string, int> m_uniformLocationCache;
+
   public:
     Shader(const std::string& filename);
     ~Shader();
@@ -23,6 +23,7 @@ class Shader {
     void bind() const;
     void unbind() const;
 
+    void setUniform1i(const std::string& name, int v);
     void setUniform4f(const std::string& name, float v0, float v1, float v2, float v3);
 
   private:
