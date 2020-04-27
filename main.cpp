@@ -11,6 +11,8 @@
 #include <GLFW/glfw3.h>
 #include <GL/glew.h>
 
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 #include <iostream>
 
@@ -36,7 +38,10 @@ int main(void)
 
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    int w_width = 1080;
+    int w_height = 720;
+    window = glfwCreateWindow(w_width, w_height, "Hello World", NULL, NULL);
+    float aspect_ratio = (float)w_width/w_height;
     if (!window)
     {
         glfwTerminate();
@@ -50,6 +55,7 @@ int main(void)
 
     GLcall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     GLcall(glEnable(GL_BLEND));
+    // glBlendEquation(GL_FUNC_ADD); ??
 
     if (glewInit() != GLEW_OK) {
       std::cout << "GLEW is not ok" << std::endl;
@@ -60,8 +66,8 @@ int main(void)
 
       float positions[] = {
         -0.5f, -0.5f, 0.0f, 0.0f,
-        0.5f, -0.5f, 1.0f, 0.0f,
-        0.5f,  0.5f, 1.0f, 1.0f,
+         0.5f, -0.5f, 1.0f, 0.0f,
+         0.5f,  0.5f, 1.0f, 1.0f,
         -0.5f,  0.5f, 0.0f, 1.0f
       };
 
@@ -86,25 +92,38 @@ int main(void)
 
       IndexBuffer ib(indices, 6);
 
+
       Shader shader("res/shaders/basic.shader");
       
       shader.bind();
 
+      glm::mat4 proj = glm::ortho(-1.0f*aspect_ratio, 1.0f*aspect_ratio, -1.0f, 1.0f, -1.0f, 1.0f);
+      glm::mat4 view = glm::translate(proj, glm::vec3(-0.5, 0, 0));
+      glm::mat4 model = glm::translate(view, glm::vec3(0, 0.5, 0));
+      // glm::mat4 mvp = proj * view;
+      shader.setUniforMat4f("u_MVP", model);
       shader.setUniform1i("u_Texture", 0);
 
       Renderer renderer;
 
-      float festa = 0.0f;
-      float inc = 0.01f;
+      float festa1 = 0.0f;
+      float festa2 = 0.5f;
+      float festa3 = 0.1f;
+      float inc1 = 0.01f;
+      float inc2 = 0.005f;
+      float inc3 = 0.02f;
       /* Loop until the user closes the window */
       while (!glfwWindowShouldClose(window)) {
           /* Render here */
 
           renderer.clear();
 
-          shader.setUniform4f("u_Color", 1.0f - festa, festa, 1.0f - festa, 1.0f);
+          shader.setUniform4f("u_Color", festa1, festa2, festa3, 1.0f);
 
           renderer.draw(va, ib, shader);
+
+          glm::mat4 final = glm::rotate(model, 6.28f*festa1, glm::vec3(0,0,1));
+          shader.setUniforMat4f("u_MVP", final);
 
           /* Swap front and back buffers */
           glfwSwapBuffers(window);
@@ -112,8 +131,12 @@ int main(void)
           /* Poll for and process events */
           glfwPollEvents();
 
-          festa += inc;
-          if (festa > 1.0f || festa < 0.0f) inc *= -1;
+          festa1 += inc1;
+          festa2 += inc2;
+          festa3 += inc3;
+          if (festa1 > 1.0f || festa1 < 0.0f) inc1 *= -1;
+          if (festa2 > 1.0f || festa2 < 0.0f) inc2 *= -1;
+          if (festa3 > 1.0f || festa3 < 0.0f) inc3 *= -1;
       }
 
     }
