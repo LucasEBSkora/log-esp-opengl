@@ -100,7 +100,7 @@ int main(void)
 
       Camera camera;
       camera.setProjAspectRatio(aspect_ratio, 1.0f);
-      camera.setCameraPos(0.0f, 0.0f, 0.f);
+      camera.setCameraPos(0.0f, 0.25f, 0.f);
       camera.setModelPos(0.75f, 0.0f, 0.0f);
 
       shader.setUniforMat4f("u_MVP", camera.getResult());
@@ -124,7 +124,8 @@ int main(void)
 
           renderer.draw(GL_TRIANGLES, va, ib, shader);
 
-          camera.rotateCamera(inc1*6.28f, 0.0f, 1.0f, 0.0f);
+          camera.resetCameraRotation(festa1*6.28f, 0.0f, 1.0f, 0.0f);
+          camera.resetModelRotation(festa2*6.28f, 1.0f, 0.0f, 0.0f);
           shader.setUniforMat4f("u_MVP", camera.getResult());
 
           /* Swap front and back buffers */

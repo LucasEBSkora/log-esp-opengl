@@ -9,22 +9,35 @@
 class Camera {
   private:
 
+    enum CameraCalculationStep {
+      CAMERA = 0,
+      CAMERAROTATE = 1,
+      MODEL = 2,
+      MODELROTATE = 3,
+      READY = 4
+    };
+
     struct Rotation {
       float angle;
       glm::vec3 normal;
     };
-  
+
+    public:
+    
     glm::mat4 proj;
     glm::mat4 camera;
     glm::mat4 cameraRotated;
     glm::mat4 model;
+    glm::mat4 result;
 
     glm::vec3 cameraPos;
     glm::vec3 modelPos;
 
-    std::vector<struct Rotation> rotations;
+    std::vector<struct Rotation> cameraRotations;
 
-    glm::mat4 result;
+    std::vector<struct Rotation> modelRotations;
+
+    bool cameraCalculation[READY];
   
   public:
     Camera();
@@ -37,14 +50,19 @@ class Camera {
     void setModelPos(float x, float y, float z);
 
     void rotateCamera(float angle, float vx, float vy, float vz);
-    void resetRotation(float angle = 0.0f, float vx = 0.0f, float vy = 0.0f, float vz = 0.0f);
+    void resetCameraRotation(float angle = 0.0f, float vx = 0.0f, float vy = 0.0f, float vz = 0.0f);
 
+    void rotateModel(float angle, float vx, float vy, float vz);
+    void resetModelRotation(float angle = 0.0f, float vx = 0.0f, float vy = 0.0f, float vz = 0.0f);
+
+    void calculateResult();
     const glm::mat4& getResult();
   
   private:
     void calculateCamera();
-    void applyRotations();
-    void calculateResult();
+    void applyCameraRotations();
+    void calculateModel();
+    void applyModelRotations();
     
 };
 
