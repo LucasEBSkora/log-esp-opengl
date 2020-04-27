@@ -3,13 +3,13 @@
 #include "GL/glew.h"
 #include "GLErrorUtils.hpp"
 
-void Renderer::draw(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const {
+void Renderer::draw(unsigned int type, const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const {
   
   shader.bind();
   va.bind();
   ib.bind();
 
-  GLcall(glDrawElements(GL_TRIANGLES, ib.getCount(), GL_UNSIGNED_INT, nullptr));
+  GLcall(glDrawElements(type, ib.getCount(), GL_UNSIGNED_INT, nullptr));
 
 }   
 

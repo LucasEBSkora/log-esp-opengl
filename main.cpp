@@ -7,6 +7,7 @@
 #include "VertexBufferLayout.hpp"
 #include "Shader.hpp"
 #include "Texture.hpp"
+#include "Camera.hpp"
 
 #include <GLFW/glfw3.h>
 #include <GL/glew.h>
@@ -97,14 +98,15 @@ int main(void)
       
       shader.bind();
 
-      glm::mat4 proj = glm::ortho(-1.0f*aspect_ratio, 1.0f*aspect_ratio, -1.0f, 1.0f, -1.0f, 1.0f);
-      glm::mat4 view = glm::translate(proj, glm::vec3(-0.5, 0, 0));
-      glm::mat4 model = glm::translate(view, glm::vec3(0, 0.5, 0));
-      // glm::mat4 mvp = proj * view;
-      shader.setUniforMat4f("u_MVP", model);
+      Camera camera;
+      camera.setProjAspectRatio(aspect_ratio, 1.0f);
+      camera.setCameraPos(0.0f, 0.0f, 0.f);
+      camera.setModelPos(0.75f, 0.0f, 0.0f);
+
+      shader.setUniforMat4f("u_MVP", camera.getResult());
       shader.setUniform1i("u_Texture", 0);
 
-      Renderer renderer;
+     Renderer renderer;
 
       float festa1 = 0.0f;
       float festa2 = 0.5f;
@@ -120,10 +122,10 @@ int main(void)
 
           shader.setUniform4f("u_Color", festa1, festa2, festa3, 1.0f);
 
-          renderer.draw(va, ib, shader);
+          renderer.draw(GL_TRIANGLES, va, ib, shader);
 
-          glm::mat4 final = glm::rotate(model, 6.28f*festa1, glm::vec3(0,0,1));
-          shader.setUniforMat4f("u_MVP", final);
+          camera.rotateCamera(inc1*6.28f, 0.0f, 1.0f, 0.0f);
+          shader.setUniforMat4f("u_MVP", camera.getResult());
 
           /* Swap front and back buffers */
           glfwSwapBuffers(window);

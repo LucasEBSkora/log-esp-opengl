@@ -9,7 +9,7 @@
 
 class Renderer {
   public:
-    void draw(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const;
+    void draw(unsigned int type, const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const;
     void clear() const;  
 
 };
