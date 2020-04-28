@@ -10,6 +10,7 @@ class VertexBuffer {
 
     void bind() const;
     void unbind() const;
+    void reInitialize(const void* data, unsigned int size);
 };
 
 #endif

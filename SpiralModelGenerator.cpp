@@ -1,6 +1,5 @@
 #include "SpiralModelGenerator.hpp"
 
-#include <iostream>
 #include <math.h>
 
 SpiralModelGenerator::SpiralModelGenerator(float maxwidth, float maxheight, float xinicial, unsigned short nlinhas) :
@@ -11,7 +10,7 @@ SpiralModelGenerator::SpiralModelGenerator(float maxwidth, float maxheight, floa
   currentIndex{0},
   angularIncrement{M_PI/nlinhas}
  {
-  if (nLinhas < 3) std::cout << "Cuidado! vai dar merda isso aí" << std::endl;
+
 }
 
 SpiralModelGenerator::~SpiralModelGenerator() {
@@ -81,16 +80,10 @@ void SpiralModelGenerator::createSegments() {
 
   while (fabs(lastVertex.x) < maxWidth && fabs(lastVertex.y) < maxHeight) {
     
-    
-
     lastVertex = currentVertex;
 
     indexBufferData.push_back(currentIndex++);
 
-
-    // currentVertex = nextSpiralVertex(theta, lastVertex);
-
-    // const float *cu = _nextSpiralVertex(theta, angularIncrement, lastVertex.x, lastVertex.y);
     currentVertex = nextSpiralVertex(theta, lastVertex);
     addVertexToBuffer(currentVertex);
    
@@ -98,7 +91,7 @@ void SpiralModelGenerator::createSegments() {
 
     theta += angularIncrement;
 
-    std::cout << '(' << lastVertex.x << ", " << lastVertex.y << ")\n";
+    // std::cout << '(' << lastVertex.x << ", " << lastVertex.y << ")\n";
   }
 
 }

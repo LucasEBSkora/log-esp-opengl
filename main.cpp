@@ -20,8 +20,6 @@
 
 #include "SpiralModelGenerator.hpp"
 
-// by Shital Shah in answer on https://stackoverflow.com/a/41580187
-
 static double getTimeInRelationTo(std::chrono::time_point<std::chrono::high_resolution_clock> t0) {
   return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t0).count()/1000.0;
 }
@@ -35,10 +33,14 @@ int main(int argc, char** argv)
 {
 
   if(argc != 2) {
-    std::cout << "usage: ./build/log-esp-opengl <N>\nWhere N = number of lines to use" << std::endl;
+    std::cout << "usage: ./build/log-esp-opengl <N>\nWhere N = number of lines to go up to" << std::endl;
+    exit(-1);
+  } else if (atoi(argv[1]) < 1) {
+    std::cout << "invalid value for N!" << std::endl;
     exit(-1);
   }
 
+  unsigned int maxNLinhas = (unsigned int) atoi(argv[1]);
   GLFWwindow* window;
   
 
@@ -57,7 +59,7 @@ int main(int argc, char** argv)
   /* Create a windowed mode window and its OpenGL context */
   int w_width = 1080;
   int w_height = 720;
-  window = glfwCreateWindow(w_width, w_height, "Hello World", NULL, NULL);
+  window = glfwCreateWindow(w_width, w_height, "log-esp-opengl", NULL, NULL);
   float aspect_ratio = (float)w_width/w_height;
   if (!window)
   {
@@ -81,52 +83,47 @@ int main(int argc, char** argv)
   std::cout << glGetString(GL_VERSION) << std::endl;
   {
 
-    SpiralModelGenerator spiral(aspect_ratio*1.0f, 1.0f, 0.1f, atoi(argv[1]));
-    spiral.fillBuffers();
-
-    //docs.gl
-
-    Texture texture("res/textures/Kuo-Toa+Druid-finished.png");
-    texture.bind();
-    
-    VertexArray va;
-    VertexBuffer vb(spiral.getVertexBufferData(), spiral.getVertexBufferDataCount()* sizeof (float));
-    
-    VertexBufferLayout layout;
-    layout.Push<float>(2);
-    va.addBuffer(vb, layout);
-
-    // IndexBuffer ib(spiral.getIndexBufferData(), spiral.getIndexBufferDataCount());
 
     Shader shader("res/shaders/basic.shader");
     
     shader.bind();
+    shader.setUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 1.0f);
 
     Camera camera;
     camera.setProjAspectRatio(aspect_ratio, 1.0f);
+    
+    shader.setUniforMat4f("u_MVP", camera.getResult());
+
+    VertexBufferLayout layout;
+    layout.Push<float>(2);
+    
+    SpiralModelGenerator spiral(aspect_ratio*1.0f, 1.0f, 0.1f, 1);
+    spiral.fillBuffers();
+
+    VertexArray va;
+    VertexBuffer vb(spiral.getVertexBufferData(), spiral.getVertexBufferDataCount()* sizeof (float));
+    
+    va.addBuffer(vb, layout);
 
     Renderer renderer;
 
     IndexBuffer ib(spiral.getIndexBufferData(), 0);
-    unsigned int i = 0;
+    unsigned int j = 0;
 
     const auto initTime = std::chrono::high_resolution_clock::now();
     double t0 = getTimeInRelationTo(initTime);
 
-    while (!glfwWindowShouldClose(window)) {
-      /* Render here */
+    unsigned int i = 1;
+
+    while (i <= maxNLinhas) {
 
       renderer.clear();
 
-      shader.setUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 1.0f);
-      shader.setUniforMat4f("u_MVP", camera.getResult());
-
-
-      if (i < spiral.getIndexBufferDataCount() && getTimeInRelationTo(initTime) - t0 >= 1.0f/pow(atoi(argv[1]), 1.5)) {
-        i += 2;
+      if (j < spiral.getIndexBufferDataCount() && getTimeInRelationTo(initTime) - t0 >= M_E/exp(i)) {
+        j += 2;
+        ib.reInitialize(spiral.getIndexBufferData(), j);
         t0 = getTimeInRelationTo(initTime);
-        std::cout << t0 << std::endl;
-        ib.reInitialize(spiral.getIndexBufferData(), i);
+        
       }
 
       renderer.draw(GL_LINES, va, ib, shader);
@@ -134,9 +131,23 @@ int main(int argc, char** argv)
 
       /* Swap front and back buffers */
       glfwSwapBuffers(window);
+      
+      if (j >= spiral.getIndexBufferDataCount()) {
+        if (getTimeInRelationTo(initTime) - t0 >= 1.0f) {
+          ++i;
+          spiral = SpiralModelGenerator(aspect_ratio*1.0f, 1.0f, 0.1f, i);
+          spiral.fillBuffers();
 
-      /* Poll for and process events */
-      glfwPollEvents();
+          
+          vb.reInitialize(spiral.getVertexBufferData(), spiral.getVertexBufferDataCount()* sizeof(float));
+          j = 0;
+          va.addBuffer(vb, layout);
+
+          ib.reInitialize(spiral.getIndexBufferData(), j);
+          t0 = getTimeInRelationTo(initTime);
+          
+        }
+      }
 
     }
 
