@@ -62,7 +62,7 @@ void SpiralModelGenerator::createLines() {
 }
 
 struct SpiralModelGenerator::Line SpiralModelGenerator::nextLine(float lineAngle) const {
-  float length = fmax(maxWidth, maxHeight);
+  float length = 2*fmax(maxWidth, maxHeight);
 
   return {
     {-(length)*cos(lineAngle), -(length)*sin(lineAngle)}, 

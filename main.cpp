@@ -1,5 +1,6 @@
 #include <iostream>
 #include <chrono>
+#include <math.h>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -21,10 +22,8 @@
 
 // by Shital Shah in answer on https://stackoverflow.com/a/41580187
 
-static double getTimeSinceEpoch(std::chrono::high_resolution_clock::time_point* t = nullptr)
-{
-    using Clock = std::chrono::high_resolution_clock;
-    return std::chrono::duration<double>((t != nullptr ? *t : Clock::now() ).time_since_epoch()).count();
+static double getTimeInRelationTo(std::chrono::time_point<std::chrono::high_resolution_clock> t0) {
+  return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t0).count()/1000.0;
 }
 
 
@@ -39,6 +38,7 @@ int main(int argc, char** argv)
     std::cout << "usage: ./build/log-esp-opengl <N>\nWhere N = number of lines to use" << std::endl;
     exit(-1);
   }
+
   GLFWwindow* window;
   
 
@@ -107,10 +107,11 @@ int main(int argc, char** argv)
 
     Renderer renderer;
 
-    IndexBuffer ib(spiral.getIndexBufferData(), spiral.getIndexBufferDataCount());
+    IndexBuffer ib(spiral.getIndexBufferData(), 0);
     unsigned int i = 0;
 
-    float t0 = getTimeSinceEpoch();
+    const auto initTime = std::chrono::high_resolution_clock::now();
+    double t0 = getTimeInRelationTo(initTime);
 
     while (!glfwWindowShouldClose(window)) {
       /* Render here */
@@ -120,12 +121,11 @@ int main(int argc, char** argv)
       shader.setUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 1.0f);
       shader.setUniforMat4f("u_MVP", camera.getResult());
 
-      std::cout << t0 << "  " << getTimeSinceEpoch() << std::endl; 
 
-      if (i < spiral.getIndexBufferDataCount() && getTimeSinceEpoch() - t0 >= 1.0f/atoi(argv[1])) {
-        std::cout << "chupa meu cu" << std::endl;
+      if (i < spiral.getIndexBufferDataCount() && getTimeInRelationTo(initTime) - t0 >= 1.0f/pow(atoi(argv[1]), 1.5)) {
         i += 2;
-        t0 = getTimeSinceEpoch();
+        t0 = getTimeInRelationTo(initTime);
+        std::cout << t0 << std::endl;
         ib.reInitialize(spiral.getIndexBufferData(), i);
       }
 
