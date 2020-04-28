@@ -26,7 +26,7 @@ class SpiralModelGenerator {
 
     unsigned int currentIndex;
 
-    float angularIncrement; 
+    double angularIncrement; 
 
   public:
     SpiralModelGenerator(float maxwidth, float maxheight, float xinicial, unsigned short nlinhas);
@@ -48,7 +48,7 @@ class SpiralModelGenerator {
     struct Line nextLine(float lineAngle) const; 
 
     void createSegments();
-    struct Vertex nextSpiralVertex(float lineAngle, Vertex lastVertex) const;
+    struct Vertex nextSpiralVertex(double lineAngle, Vertex lastVertex) const;
 
 };
 

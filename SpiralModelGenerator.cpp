@@ -71,26 +71,51 @@ struct SpiralModelGenerator::Line SpiralModelGenerator::nextLine(float lineAngle
 }
 
 void SpiralModelGenerator::createSegments() {
+  struct Vertex lastVertex = {0.0f, 0.0f};
+  struct Vertex currentVertex = {xInicial, 0.0f};
 
-  struct Vertex lastVertex = {xInicial, 0.0f};
-  struct Vertex currentVertex = {0.f, 0.0f};
-  
-  float theta = 0;
 
-  while (fabs(currentVertex.x) < maxWidth && abs(currentVertex.y) < maxHeight) {
+  addVertexToBuffer(currentVertex);
+
+  double theta = 0;
+
+  while (fabs(lastVertex.x) < maxWidth && fabs(lastVertex.y) < maxHeight) {
     
-    addVertexToBuffer(lastVertex);
+    
+
+    lastVertex = currentVertex;
+
     indexBufferData.push_back(currentIndex++);
 
+
+    // currentVertex = nextSpiralVertex(theta, lastVertex);
+
+    // const float *cu = _nextSpiralVertex(theta, angularIncrement, lastVertex.x, lastVertex.y);
     currentVertex = nextSpiralVertex(theta, lastVertex);
     addVertexToBuffer(currentVertex);
+   
     indexBufferData.push_back(currentIndex);
 
-    
+    theta += angularIncrement;
+
+    std::cout << '(' << lastVertex.x << ", " << lastVertex.y << ")\n";
   }
+
 }
 
+struct SpiralModelGenerator::Vertex SpiralModelGenerator::nextSpiralVertex(double lineAngle, SpiralModelGenerator::Vertex lastVertex) const {
+  
+  if(nLinhas < 3) {
+    return {lastVertex.x, maxHeight};
+  }
 
-struct SpiralModelGenerator::Vertex SpiralModelGenerator::nextSpiralVertex(float lineAngle, SpiralModelGenerator::Vertex lastVertex) const {
-  return {0.0f, 0.0f};
+
+  double MA = lineAngle + M_PI_2;
+  double NLA = lineAngle + angularIncrement;
+  
+  lastVertex.x =  (lastVertex.y - tan(MA)*lastVertex.x)/(tan(NLA) - tan(MA));
+  lastVertex.y = tan(NLA)*lastVertex.x;
+
+  return lastVertex;
+
 }
